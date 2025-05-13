@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Inicio</title>
+    <link rel="stylesheet" href="static/index.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script defer src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+</head>
+
+<body>
+    <div class="d-flex justify-content-center align-items-center vh-100">
+
+
+        <div class="card m-3" style="width: 22rem;">
+            <h5 class="card-title p-2">Venta</h5>
+            <div class="input-group input-group-sm mb-3">
+                <span class="input-group-text" id="inputGroup-sizing-sm">Buscar</span>
+                <input type="text" class="form-control" aria-label="Sizing example input"
+                    aria-describedby="inputGroup-sizing-sm">
+                <button class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                        fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+                        <path
+                            d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0" />
+                    </svg></i></button>
+            </div>
+            <div id="listaSucursales" class="p-2">
+            </div>
+
+            <div class="form-floating p-2">
+                <select class="form-select" id="selectorSucursal">
+                    <option selected disabled>Seleccione la sucursal</option>
+                </select>
+                <label for="selectorSucursal">Sucursal</label>
+            </div>
+
+            <div class="input-group input-group-sm mb-3 px-2">
+                <span class="input-group-text">Cantidad</span>
+                <input type="number" id="cantidadInput" class="form-control">
+                <button class="btn btn-primary" onclick="calcular()">Calcular</button>
+            </div>
+
+            <div class="p-2" id="totales">
+                <h6>Total CLP: <span id="totalCLP">0</span></h6>
+                <h6>Total USD: <span id="totalUSD">0</span></h6>
+            </div>
+
+            <div class="px-2 pb-3">
+                <button class="btn btn-success" onclick="vender()">Venta</button>
+            </div>
+
+            <div class="p-2">
+                <h6 id="mensajeStock" class="text-danger"></h6>
+            </div>
+        </div>
+    </div>
+    <script>
+        let sucursales = [];
+
+        // Cargar sucursales al inicio
+        window.onload = async function () {
+            const res = await fetch('http://localhost:5000/api/stock');
+            sucursales = await res.json();
+            const lista = document.getElementById('listaSucursales');
+            const selector = document.getElementById('selectorSucursal');
+
+            sucursales.forEach(s => {
+                lista.innerHTML += `<div class="suc">
+                <h6>${s.nombre}</h6>
+                <p>Cantidad: ${s.cantidad} | Precio: $${s.precio}</p>
+            </div>`;
+                selector.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
+            });
+
+            escucharSSE();
+        };
+
+        async function calcular() {
+            const nombre = document.getElementById("selectorSucursal").value;
+            const cantidad = parseInt(document.getElementById("cantidadInput").value);
+
+            const sucursal = sucursales.find(s => s.nombre === nombre);
+            if (!sucursal) return;
+
+            const total = sucursal.precio * cantidad;
+            document.getElementById("totalCLP").innerText = total;
+
+            // Obtener valor USD desde backend con POST y JSON
+            const res = await fetch('http://localhost:5000/api/convertir_usd', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ precio_clp: total })
+            });
+
+            const data = await res.json();
+            document.getElementById("totalUSD").innerText = data.usd.toFixed(2);
+        }
+
+
+        async function vender() {
+            const nombre = document.getElementById("selectorSucursal").value;
+            const cantidad = parseInt(document.getElementById("cantidadInput").value);
+
+            const res = await fetch("http://localhost:5000/api/venta_con_transbank", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ sucursal: nombre, cantidad })
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert("✅ Venta realizada correctamente");
+                location.reload(); // Recarga para actualizar stock
+            } else {
+                alert("❌ Error: " + data.error);
+            }
+        }
+
+        // Conectar al backend vía SSE
+        function escucharSSE() {
+            const eventSource = new EventSource("http://localhost:5000/api/eventos");
+            eventSource.onmessage = function (event) {
+                document.getElementById("mensajeStock").innerText = event.data;
+                alert("⚠️ " + event.data);
+            };
+        }
+    </script>
+</body>
+
+</html>

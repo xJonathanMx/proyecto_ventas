@@ -1,0 +1,20 @@
+#card{
+    margin-left: 38%;
+    margin-top: 5%;
+border: 1px solid red;
+}
+
+.suc{
+margin-left: 20px;  
+}
+.btnes{
+    align-items: center;
+    border: 1px solid red;
+   
+
+}
+  
+#textf{
+    display: flex;
+    justify-content: center;
+}
