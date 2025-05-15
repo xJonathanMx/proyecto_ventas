@@ -14,11 +14,13 @@
 
 
         <div class="card m-3" style="width: 22rem;">
-            <h5 class="card-title p-2">Venta</h5>
+             <h5 class="card-title p-3 text-center bg-primary text-white rounded-top">Venta de Productos</h5>
             <div class="input-group input-group-sm mb-3">
-                <span class="input-group-text" id="inputGroup-sizing-sm">Buscar</span>
-                <input type="text" class="form-control" aria-label="Sizing example input"
-                    aria-describedby="inputGroup-sizing-sm">
+            <span class="input-group-text" id="inputGroup-sizing-sm">Buscar</span>
+            <input type="text" id="busquedaInput" class="form-control"
+                aria-label="Sizing example input"
+                aria-describedby="inputGroup-sizing-sm"
+                oninput="filtrarSucursales()">
                 <button class="btn btn-primary"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
                         fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
                         <path
@@ -128,6 +130,51 @@
                 alert("⚠️ " + event.data);
             };
         }
+
+/*Mostrar/filtrar sucursales con el boton de buscar */
+        function filtrarSucursales() {
+            const termino = document.getElementById("busquedaInput").value.toLowerCase();
+            const lista = document.getElementById('listaSucursales');
+            lista.innerHTML = '';
+
+            sucursales.forEach(s => {
+                if (s.nombre.toLowerCase().includes(termino)) {
+                    lista.innerHTML += `
+                        <div class="suc">
+                            <h6>${s.nombre}</h6>
+                            <p>Cantidad: ${s.cantidad} | Precio: $${s.precio}</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        function mostrarSucursales(lista) {
+            const contenedor = document.getElementById('listaSucursales');
+            contenedor.innerHTML = '';
+            lista.forEach(s => {
+                contenedor.innerHTML += `
+                    <div class="suc">
+                        <h6>${s.nombre}</h6>
+                        <p>Cantidad: ${s.cantidad} | Precio: $${s.precio}</p>
+                    </div>
+                `;
+            });
+        }
+
+        window.onload = async function () {
+            const res = await fetch('http://localhost:5000/api/stock');
+            sucursales = await res.json();
+
+            mostrarSucursales(sucursales);
+
+            const selector = document.getElementById('selectorSucursal');
+            sucursales.forEach(s => {
+                selector.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
+            });
+
+            escucharSSE();
+        };
     </script>
 </body>
 

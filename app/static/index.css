@@ -1,20 +1,109 @@
-#card{
-    margin-left: 38%;
-    margin-top: 5%;
-border: 1px solid red;
-}
-
-.suc{
-margin-left: 20px;  
-}
-.btnes{
-    align-items: center;
-    border: 1px solid red;
-   
-
-}
-  
-#textf{
+/* Fondo general */
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: linear-gradient(to right, #f9e7d3, #f8f5f2);
     display: flex;
     justify-content: center;
+    align-items: flex-start;
+    height: 100vh;
+}
+
+/* Tarjeta principal */
+#card {
+    margin-top: 4%;
+    width: 340px;
+    background: #fff;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    padding: 20px;
+}
+
+/* Título */
+#card h3 {
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    padding: 12px;
+    border-radius: 15px 15px 0 0;
+    margin: -20px -20px 20px -20px;
+}
+
+/* Buscador */
+#textf {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+#textf input {
+    flex: 1;
+    padding: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#textf button {
+    padding: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Sucursales */
+.suc {
+    background-color: #f9f9f9;
+    padding: 10px;
+    margin-bottom: 10px;
+    border-left: 4px solid #007bff;
+    border-radius: 5px;
+}
+
+.suc strong {
+    font-size: 15px;
+}
+
+/* Select y cantidad */
+select, input[type="number"] {
+    width: 100%;
+    padding: 8px;
+    margin-top: 8px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+.btnes {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.btnes input[type="number"] {
+    flex: 2;
+}
+
+.btnes button {
+    flex: 1;
+    padding: 8px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Resultados */
+#resultados {
+    margin-top: 15px;
+    font-weight: bold;
+    color: #333;
+}
+
+
+
+#btnVenta:hover {
+    background-color: #218838;
 }
