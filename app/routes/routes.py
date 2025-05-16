@@ -1,8 +1,8 @@
 from flask import Blueprint, jsonify, request
-from .models import Sucursal
-from . import db
-from .utils import convertir_moneda  
-from .utils import simular_transaccion_transbank
+from ..models import Sucursal
+from .. import db
+from ..utils import convertir_moneda  
+from ..utils import simular_transaccion_transbank
 from flask import Response
 import time
 import threading
@@ -108,5 +108,15 @@ def convertir_usd():
         "moneda": moneda,
         "valor_convertido": precio_convertido
     })
+def descontar_stock(sucursal_nombre, cantidad):
+    sucursal = Sucursal.query.filter_by(nombre=sucursal_nombre).first()
+    if not sucursal:
+        return False, "Sucursal no encontrada"
+    if sucursal.cantidad < cantidad:
+        return False, "Stock insuficiente"
+
+    sucursal.cantidad -= cantidad
+    db.session.commit()
+    return True, "Stock descontado"
 
 

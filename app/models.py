@@ -13,3 +13,9 @@ class Sucursal(db.Model):
             "cantidad": self.cantidad,
             "precio": self.precio
         }
+class Pago(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    buy_order = db.Column(db.String(50), nullable=False)
+    session_id = db.Column(db.String(50), nullable=False)
+    amount = db.Column(db.Float, nullable=False)
+    status = db.Column(db.String(20), nullable=False)

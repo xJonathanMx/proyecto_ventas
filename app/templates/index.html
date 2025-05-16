@@ -59,7 +59,7 @@
             </div>
 
             <div class="px-2 pb-3">
-                <button class="btn btn-success" onclick="vender()">Venta</button>
+                <button class="btn btn-success" onclick="vender()">Comprar</button>
             </div>
 
             <div class="p-2">
@@ -203,7 +203,31 @@
 
             escucharSSE();
         };
-    </script>
+        
+        async function vender() {
+            const nombre = document.getElementById("selectorSucursal").value;
+            const cantidad = parseInt(document.getElementById("cantidadInput").value);
+            const moneda = document.getElementById("selectorMoneda").value;
+
+            const sucursal = sucursales.find(s => s.nombre === nombre);
+            if (!sucursal || cantidad <= 0) {
+                alert("Selecciona datos válidos.");
+                return;
+            }
+
+            const totalCLP = sucursal.precio * cantidad;
+
+            const url = new URL("http://localhost:5000/pagar");
+            url.searchParams.append("sucursal", nombre);
+            url.searchParams.append("cantidad", cantidad);
+            url.searchParams.append("moneda", moneda);
+            url.searchParams.append("total", totalCLP);
+
+            window.location.href = url.toString();
+        }
+
+
+        </script>
 </body>
 
 </html>
