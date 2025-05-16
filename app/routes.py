@@ -1,7 +1,7 @@
 from flask import Blueprint, jsonify, request
 from .models import Sucursal
 from . import db
-from .utils import convertir_a_usd  
+from .utils import convertir_moneda  
 from .utils import simular_transaccion_transbank
 from flask import Response
 import time
@@ -90,6 +90,7 @@ def venta_con_transbank():
 def convertir_usd():
     data = request.json
     precio_clp = data.get("precio_clp")
+    moneda = data.get("moneda", "USD")  # Si no envían moneda, por defecto USD.
 
     if precio_clp is None:
         return jsonify({"error": "precio_clp es requerido"}), 400
@@ -99,6 +100,13 @@ def convertir_usd():
     except ValueError:
         return jsonify({"error": "precio_clp debe ser numérico"}), 400
 
-    precio_usd = convertir_a_usd(precio_clp)
-    return jsonify({"clp": precio_clp, "usd": precio_usd})
+    # Realizamos la conversión con la moneda seleccionada
+    precio_convertido = convertir_moneda(precio_clp, moneda)
+
+    return jsonify({
+        "clp": precio_clp,
+        "moneda": moneda,
+        "valor_convertido": precio_convertido
+    })
+
 
