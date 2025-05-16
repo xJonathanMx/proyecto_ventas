@@ -15,6 +15,7 @@ transaction = Transaction(options)
 
 @bp.route('/pagar', methods=['GET', 'POST'])
 def iniciar_pago():
+    
     if request.method == 'GET':
         # Muestra la vista para confirmar el pago
         sucursal = request.args.get('sucursal')
@@ -52,33 +53,23 @@ def resultado_pago():
         return "No se recibió token_ws", 400
 
     response = transaction.commit(token_ws)
-    current_app.logger.info(f"Respuesta Transbank: {response}")
-
-    if response.get('status') == 'APPROVED':
+    
+    # Verificamos si el estado de la transacción es 'AUTHORIZED'
+    if response.get('status') == 'AUTHORIZED':
+        # Obtener los datos de la transacción
         buy_order = response.get('buy_order')
-        current_app.logger.info(f"Buy order: {buy_order}")
-
-        try:
-            _, sucursal_nombre, cantidad_str = buy_order.split('_')
-            cantidad = int(cantidad_str)
-        except Exception as e:
-            current_app.logger.error(f"Error parseando buy_order: {e}")
-            return f"Error al interpretar buy_order: {e}", 500
-
+        sucursal_nombre = buy_order.split("_")[1]
+        cantidad_comprada = int(buy_order.split("_")[2])
+        
+        # Buscar la sucursal en la base de datos
         sucursal = Sucursal.query.filter_by(nombre=sucursal_nombre).first()
-        if not sucursal:
-            current_app.logger.error("Sucursal no encontrada para descuento")
-            return "Sucursal no encontrada para descuento de stock", 404
+        
+        if sucursal:
+            if sucursal.cantidad >= cantidad_comprada:
+                sucursal.cantidad -= cantidad_comprada
+                db.session.commit()
+            else:
+                return f"No hay suficiente stock en la sucursal {sucursal_nombre}", 400
+        
+    return render_template('resultado.html', response=response)
 
-        if sucursal.cantidad < cantidad:
-            current_app.logger.error("Stock insuficiente para descuento")
-            return "Stock insuficiente al momento de descontar", 400
-
-        sucursal.cantidad -= cantidad
-        db.session.commit()
-        current_app.logger.info(f"Stock descontado: {cantidad} de {sucursal_nombre}, nuevo stock: {sucursal.cantidad}")
-
-    else:
-        current_app.logger.warning(f"Pago no aprobado, status: {response.get('status')}")
-
-    return redirect('/')
