@@ -83,23 +83,6 @@
             const sucursal = sucursales.find(s => s.nombre === nombre);
             if (!sucursal) return;
 
-            // ✅ Validación de stock disponible
-            if (cantidad > sucursal.cantidad) {
-                // 🔄 Enviar evento SSE al backend
-                await fetch('http://localhost:5000/api/notificar_stock', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        mensaje: `⚠️ El monto solicitado (${cantidad}) excede el stock disponible (${sucursal.cantidad}) en ${sucursal.nombre}.`
-                    })
-                });
-
-                // 🔁 Retornamos para evitar seguir calculando
-                return;
-            }
-
             const total = sucursal.precio * cantidad;
             document.getElementById("totalCLP").innerText = total;
 
@@ -113,9 +96,8 @@
             });
 
             const data = await res.json();
-            document.getElementById("totalUSD").innerText = data.valor_convertido.toFixed(2);
+            document.getElementById("totalUSD").innerText = data.usd.toFixed(2);
         }
-
 
 
         async function vender() {
