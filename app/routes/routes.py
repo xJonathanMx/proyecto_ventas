@@ -118,5 +118,18 @@ def descontar_stock(sucursal_nombre, cantidad):
     sucursal.cantidad -= cantidad
     db.session.commit()
     return True, "Stock descontado"
+mensaje_enviado = None
+@api.route('/notificar_stock', methods=['POST'])
+def notificar_stock():
+    global mensaje_enviado
+    data = request.json
+    mensaje = data.get("mensaje")
+
+    # ✅ Validar si el mensaje ya fue enviado para evitar duplicación
+    if mensaje and mensaje != mensaje_enviado:
+        eventos_sse.append(mensaje)
+        mensaje_enviado = mensaje
+
+    return jsonify({"message": "Notificación enviada"}), 200
 
 

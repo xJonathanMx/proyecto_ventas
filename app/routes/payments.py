@@ -69,7 +69,6 @@ def resultado_pago():
                 sucursal.cantidad -= cantidad_comprada
                 db.session.commit()
             else:
-                return f"No hay suficiente stock en la sucursal {sucursal_nombre}", 400
-        
+                return f"No hay suficiente stock en la sucursal {sucursal_nombre}", 400  
     return render_template('resultado.html', response=response)
 
