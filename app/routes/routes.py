@@ -118,5 +118,3 @@ def descontar_stock(sucursal_nombre, cantidad):
     sucursal.cantidad -= cantidad
     db.session.commit()
     return True, "Stock descontado"
-
-

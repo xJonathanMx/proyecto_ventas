@@ -21,7 +21,7 @@ def create_app():
     from app.routes.payments import bp as payments_bp
 
     app.register_blueprint(api, url_prefix='/api')
-    app.register_blueprint(payments_bp)  # Sin prefijo: accederás con /pagar
+    app.register_blueprint(payments_bp)  # Sin prefijo: accederÃ¡s con /pagar
 
     with app.app_context():
         db.create_all()
