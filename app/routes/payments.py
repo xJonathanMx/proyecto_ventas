@@ -54,7 +54,7 @@ def resultado_pago():
     response = transaction.commit(token_ws)
     current_app.logger.info(f"Respuesta Transbank: {response}")
 
-    if response.get('status') == 'APPROVED':
+    if response.get('status') == 'AUTHORIZED' and response.get('response_code') == 0:
         buy_order = response.get('buy_order')
         current_app.logger.info(f"Buy order: {buy_order}")
 
@@ -81,4 +81,4 @@ def resultado_pago():
     else:
         current_app.logger.warning(f"Pago no aprobado, status: {response.get('status')}")
 
-    return redirect('/')
+    return render_template('resultado.html', response=response)

@@ -59,7 +59,13 @@ def venta_con_transbank():
         return jsonify({"error": "Sucursal no encontrada"}), 404
 
     if sucursal.cantidad < cantidad:
+        mensaje = f"🚫 Stock insuficiente en {sucursal.nombre} (disponible: {sucursal.cantidad}, solicitado: {cantidad})"
+        eventos_sse.append(mensaje)
         return jsonify({"error": "Stock insuficiente"}), 400
+    
+    if sucursal.cantidad == 0:
+        mensaje = f"⚠️ Stock Bajo en {sucursal.nombre}"
+        eventos_sse.append(mensaje)
 
     monto = cantidad * sucursal.precio
 
@@ -72,6 +78,7 @@ def venta_con_transbank():
     # ✅ Descontar stock
     sucursal.cantidad -= cantidad
     db.session.commit()
+    
 
     # 🚨 Si stock queda en 0, enviar mensaje SSE
     if sucursal.cantidad == 0:
@@ -118,5 +125,3 @@ def descontar_stock(sucursal_nombre, cantidad):
     sucursal.cantidad -= cantidad
     db.session.commit()
     return True, "Stock descontado"
-
-

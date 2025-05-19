@@ -130,9 +130,14 @@
 }
 
 
-        async function vender() {
+        /*async function vender() {
             const nombre = document.getElementById("selectorSucursal").value;
             const cantidad = parseInt(document.getElementById("cantidadInput").value);
+
+            if (!nombre || cantidad <= 0) {
+                alert("Selecciona una sucursal y cantidad válida.");
+                return;
+            }
 
             const res = await fetch("http://localhost:5000/api/venta_con_transbank", {
                 method: "POST",
@@ -144,7 +149,7 @@
 
             if (res.ok) {
                 alert("✅ Venta realizada correctamente");
-                location.reload(); // Recarga para actualizar stock
+                location.reload();
             } else {
                 alert("❌ Error: " + data.error);
             }
@@ -157,7 +162,7 @@
                 document.getElementById("mensajeStock").innerText = event.data;
                 alert("⚠️ " + event.data);
             };
-        }
+        }*/
 
         /*Mostrar/filtrar sucursales con el boton de buscar */
         function filtrarSucursales() {
@@ -201,7 +206,7 @@
                 selector.innerHTML += `<option value="${s.nombre}">${s.nombre}</option>`;
             });
 
-            escucharSSE();
+            escucharSSE();  // ⚠️ Asegúrate de que esto sí se llame
         };
         
         async function vender() {
@@ -212,6 +217,13 @@
             const sucursal = sucursales.find(s => s.nombre === nombre);
             if (!sucursal || cantidad <= 0) {
                 alert("Selecciona datos válidos.");
+                return;
+            }
+
+            if (cantidad > sucursal.cantidad) {
+                const mensaje = `❌ No hay suficiente stock disponible en la sucursal "${sucursal.nombre}". Solo quedan ${sucursal.cantidad} unidades.`;
+                document.getElementById("mensajeStock").innerText = mensaje;
+                alert(mensaje);
                 return;
             }
 
@@ -226,7 +238,13 @@
             window.location.href = url.toString();
         }
 
-
+        function escucharSSE() {
+                const eventSource = new EventSource("http://localhost:5000/api/eventos");
+                eventSource.onmessage = function (event) {
+                    document.getElementById("mensajeStock").innerText = event.data;
+                    alert("⚠️ " + event.data);
+                };
+            }
         </script>
 </body>
 
